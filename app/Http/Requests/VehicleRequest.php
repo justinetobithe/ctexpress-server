@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class RouteRequest extends FormRequest
+class VehicleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,14 +23,11 @@ class RouteRequest extends FormRequest
     {
         return [
             'driver_id' => 'required|exists:users,id',
-            'fare_amount' => 'required|numeric',
-            'from_terminal_id' => 'required|exists:terminals,id',
-            'to_terminal_id' => 'required|exists:terminals,id',
-            'passenger_capacity' => 'required|integer',
-            'route_date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'status' => 'required|string',
-            'vehicle_id' => 'required|exists:vehicles,id',
+            'license_plate' => 'required|string|unique:vehicles,license_plate',
+            'make' => 'required|string|max:255',
+            'model' => 'required|string|max:255',
+            'year' => 'required|integer|between:1900,' . date('Y'),
+            'capacity' => 'required|integer|min:1',
         ];
     }
 }

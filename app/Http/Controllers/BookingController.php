@@ -19,7 +19,7 @@ class BookingController extends Controller
     }
 
     public function store(BookingRequest $request)
-    {
+    { 
         $booking = Booking::create($request->validated());
         return response()->json([
             'status' => true,

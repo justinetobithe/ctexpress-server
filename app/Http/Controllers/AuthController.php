@@ -1,26 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    /**
-     * Register a new user.
-     */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'phone' => 'required|string|max:15|unique:users',
+            'address' => 'required|string|max:255',
             'role' => 'required|in:Passenger,Driver,Admin',
         ]);
 
@@ -52,7 +50,6 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         if ($request->has('google_token')) {
-            // Login with Gmail
             try {
                 $googleUser = Socialite::driver('google')->userFromToken($request->google_token);
 
@@ -99,7 +96,7 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Invalid email or password',
-                ], 401);
+                ]);
             }
         }
     }

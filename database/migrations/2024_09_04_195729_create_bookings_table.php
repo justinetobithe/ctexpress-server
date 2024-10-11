@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('driver_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('route_id')->constrained('routes')->onDelete('cascade');
             $table->timestamp('booked_at');
             $table->enum('status', ['pending', 'approved', 'expired']);
-            $table->boolean('paid')->default(false);
+            $table->boolean('paid')->default(false); 
+            $table->point('drop_at')->nullable();
             $table->timestamps();
         });
     }
