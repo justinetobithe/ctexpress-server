@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PaymentAccount::class);
     }
+
+    public function generateToken()
+    {
+        return $this->createToken("auth-{$this->id}")->plainTextToken;
+    }
 }

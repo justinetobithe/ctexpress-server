@@ -2,7 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuthLoginRequest;
+use App\Http\Requests\GoogleLoginRequest;
+use App\Http\Requests\UserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,25 +16,10 @@ use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    use ApiResponse;
+
+    public function register(UserRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'phone' => 'required|string|max:15|unique:users',
-            'address' => 'required|string|max:255',
-            'role' => 'required|in:Passenger,Driver,Admin',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -39,90 +29,77 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'User registered successfully',
-            'user' => $user,
+            'message' => __('messages.success.registered'),
+            'user' => new UserResource($user),
         ], 201);
     }
-
-    /**
-     * Login user.
-     */
-    public function login(Request $request)
+    public function login(AuthLoginRequest $request)
     {
-        if ($request->has('google_token')) {
-            try {
-                $googleUser = Socialite::driver('google')->userFromToken($request->google_token);
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = auth()->user();
+            $token = $user->generateToken();
 
-                $user = User::where('email', $googleUser->getEmail())->first();
+            $data = [
+                'token' => $token,
+                'user' => new UserResource($user),
+            ];
 
-                if (!$user) {
-                    $user = User::create([
-                        'name' => $googleUser->getName(),
-                        'email' => $googleUser->getEmail(),
-                        'google_id' => $googleUser->getId(),
-                        'google_avatar' => $googleUser->getAvatar(),
-                        'role' => 'Passenger',
-                    ]);
-                }
-
-                Auth::login($user, true);
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Logged in successfully with Google',
-                    'user' => $user,
-                    'token' => $user->createToken('API Token')->plainTextToken,
-                ], 200);
-            } catch (\Exception $e) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Failed to login with Google',
-                    'error' => $e->getMessage(),
-                ], 500);
-            }
-        } else {
-            $credentials = $request->only('email', 'password');
-
-            if (Auth::attempt($credentials)) {
-                $user = Auth::user();
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Logged in successfully',
-                    'user' => $user,
-                    'token' => $user->createToken('API Token')->plainTextToken,
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Invalid email or password',
-                ]);
-            }
+            return $this->success($data)->withCookie(cookie('auth_token', $token, 60));
         }
+
+        return $this->error(__('messages.invalid.credentials'));
     }
 
+    public function loginWithGoogle(GoogleLoginRequest $request)
+    {
+        $params = $request->validated();
+        $provider = $params['provider'];
+        $validated = $this->validateProvider($provider);
+        if (!is_null($validated))
+            return $validated;
 
-    /**
-     * Logout user.
-     */
+        $google_user = Socialite::driver($provider)->userFromToken($params['access_provider_token']);
+        if ($google_user) {
+            $user = User::where('email', $google_user->email)->first();
+            if ($user && Auth::loginUsingId($user->id)) {
+                $user = auth()->user();
+                $token = $user->generateToken();
+
+                $data = [
+                    'token' => $token,
+                    'user' => new UserResource($user),
+                ];
+
+                # NOTE: TOKEN EXPIRES AFTER AN HOUR
+                return $this->success($data)->withCookie(cookie('auth_token', $token, 60));
+            }
+        }
+
+        return $this->error(__('messages.invalid.credentials'));
+    }
+
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->tokens()->delete();
 
         return response()->json([
             'status' => true,
-            'message' => 'Logged out successfully',
+            'message' => __('messages.success.deleted'),
         ], 200);
     }
 
-    /**
-     * Get the authenticated user.
-     */
     public function user()
     {
         return response()->json([
             'status' => true,
             'user' => Auth::user(),
         ], 200);
+    }
+
+    protected function validateProvider($provider)
+    {
+        if (!in_array($provider, ['google'])) {
+            return $this->error(__('messages.invalid.provider'));
+        }
     }
 }

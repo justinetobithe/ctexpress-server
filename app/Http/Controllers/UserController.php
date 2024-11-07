@@ -4,40 +4,101 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    use ApiResponse;
+
+    public function index(Request $request)
     {
-        $users = User::all();
-        return response()->json([
-            'status' => 'success',
-            'data' => $users,
-        ], 200);
-    }
+        $pageSize = $request->input('page_size', 10);
+        $filter = $request->input('filter');
+        $sortColumn = $request->input('sort_column', 'first_name');
+        $sortDesc = $request->input('sort_desc', false) ? 'desc' : 'asc';
 
-    public function update(UserRequest $request, User $user)
-    {
-        $validated = $request->validated();
+        $query = User::query();
 
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->phone = $validated['phone'];
-        $user->address = $validated['address'];
-        $user->role = $validated['role'];
-
-        if ($request->has('password')) {
-            $user->password = Hash::make($validated['password']);
+        if ($filter) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('first_name', 'like', "%{$filter}%")
+                    ->orWhere('last_name', 'like', "%{$filter}%")
+                    ->orWhere('email', 'like', "%{$filter}%")
+                    ->orWhere('phone', 'like', "%{$filter}%");
+            });
         }
 
-        $user->save();
+        if (in_array($sortColumn, ['first_name', 'last_name', 'email', 'phone'])) {
+            $query->orderBy($sortColumn, $sortDesc);
+        }
+
+        $users = $query->paginate($pageSize);
+
+        return $this->success($users);
+    }
+
+    public function show(User $user)
+    {
+        return $this->success(['status' => true, 'data' => $user]);
+    }
+
+    public function store(UserRequest $request)
+    {
+        $existingUser = User::where('email', $request->email)->first();
+
+        if ($existingUser) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Role added to existing user.',
+                'data' => $existingUser,
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => __('messages.errors.email_exists'),
+                'data' => $existingUser,
+            ]);
+        }
+
+        $user = User::create($request->all());
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User updated successfully',
-            'data' => $user,
-        ], 200);
+            'message' => __('messages.success.created'),
+            'user' => $user,
+        ]);
+    }
+
+    public function update(UserRequest $request, string $id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($request->has('password')) {
+            $request->merge(['password' => Hash::make($request->password)]);
+        } else {
+            $request->offsetUnset('password');
+        }
+
+        $user->update($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('messages.success.updated'),
+            'user' => $user,
+        ]);
+    }
+
+    public function destroy(string $id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('messages.success.deleted'),
+            'user' => $user,
+        ]);
     }
 }

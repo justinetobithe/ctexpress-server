@@ -11,13 +11,13 @@ class Passenger extends Model
 
     protected $guarded = ['id'];
 
-    public function user()
+    public function booking()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Booking::class);
     }
 
-    public function route()
+    public function trip()
     {
-        return $this->belongsTo(Route::class);
+        return $this->belongsTo(Trip::class);
     }
 }

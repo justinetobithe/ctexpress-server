@@ -22,12 +22,13 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $this->user->id,
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email',
             'phone' => 'nullable|string|max:15',
             'address' => 'nullable|string|max:255',
-            'password' => 'nullable|string|min:8|confirmed', 
-            'role' => 'required|in:Passenger,Driver,Admin',
+            'password' => 'sometimes|nullable|string|min:8',
+            'role' => 'required|in:operator,passenger,driver,admin',
         ];
     }
 }
