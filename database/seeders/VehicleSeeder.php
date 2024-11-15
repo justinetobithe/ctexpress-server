@@ -14,18 +14,18 @@ class VehicleSeeder extends Seeder
     public function run(): void
     {
         Vehicle::create([
-            'driver_id' => 4,
+            'driver_id' => 6,
             'license_plate' => 'L300-001',
-            'make' => 'Mitsubishi',
+            'brand' => 'Mitsubishi',
             'model' => 'L300',
             'year' => 2022,
             'capacity' => 20,
         ]);
 
         Vehicle::create([
-            'driver_id' => 5,
+            'driver_id' => 7,
             'license_plate' => 'L300-002',
-            'make' => 'Mitsubishi',
+            'brand' => 'Mitsubishi',
             'model' => 'L300',
             'year' => 2023,
             'capacity' => 20,

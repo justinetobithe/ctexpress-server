@@ -23,11 +23,13 @@ class BookingRequest extends FormRequest
     {
         return [
             'user_id'   => 'required|exists:users,id',
-            'trip_id'  => 'required|exists:routes,id',
+            'trip_id'  => 'required|exists:trips,id',
             'booked_at' =>  'required|date',
             'status'    => 'required|string',
-            'drop_at'   => 'nullable|point',
-            'paid' => 'required|boolean'
+            'drop_at'   => 'nullable|string',
+            'paid' => 'required|boolean',
+            'payment_method' => 'nullable|string',
+            'total_amount' => 'nullable|integer',
         ];
     }
 }

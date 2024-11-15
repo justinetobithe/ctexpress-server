@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('trips', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('driver_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('vehicle_id')->constrained('vehicles')->onDelete('cascade');
+            $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('from_terminal_id')->constrained('terminals')->onDelete('cascade');
             $table->foreignId('to_terminal_id')->constrained('terminals')->onDelete('cascade');
             $table->integer('passenger_capacity');
             $table->time('start_time');
             $table->date('trip_date');
-            $table->decimal('fare_amount', 8, 2);
+            $table->integer('fare_amount');
             $table->enum('status', ['pending', 'completed', 'canceled', 'in_progress', 'failed'])->default('pending');
+            $table->boolean('is_driver_accepted')->default(false);
             $table->timestamps();
         });
     }

@@ -13,7 +13,7 @@ class TerminalController extends Controller
 
     public function index(Request $request)
     {
-        $pageSize = $request->input('page_size', 10);
+        $pageSize = $request->input('page_size');
         $filter = $request->input('filter');
         $sortColumn = $request->input('sort_column', 'name');
         $sortDesc = $request->input('sort_desc', false) ? 'desc' : 'asc';
@@ -32,9 +32,17 @@ class TerminalController extends Controller
             $query->orderBy($sortColumn, $sortDesc);
         }
 
-        $terminals = $query->paginate($pageSize);
+        if ($pageSize) {
+            $terminals = $query->paginate($pageSize);
+        } else {
+            $terminals = $query->get();
+        }
 
-        return $this->success($terminals);
+        return response()->json([
+            'status' => 'success',
+            'message' => __('messages.success.fetched'),
+            'data' => $terminals,
+        ]);
     }
 
     public function show(Terminal $termimal)
@@ -46,7 +54,7 @@ class TerminalController extends Controller
     {
         $validated = $request->validated();
 
-        $terminal = Terminal::create($validated->all());
+        $terminal = Terminal::create($validated);
 
         return response()->json([
             'status' => 'success',
@@ -58,7 +66,6 @@ class TerminalController extends Controller
     public function update(TerminalRequest $request, string $id)
     {
         $terminal = Terminal::findOrFail($id);
-
 
         $terminal->update($request->all());
 

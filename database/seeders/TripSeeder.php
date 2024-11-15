@@ -16,74 +16,68 @@ class TripSeeder extends Seeder
         $currentDate = now()->toDateString();
 
         Trip::create([
-            'driver_id' => 4,
-            'vehicle_id' => 1,
+            'driver_id' => 6,
             'from_terminal_id' => 1,
             'to_terminal_id' => 2,
             'passenger_capacity' => 20,
             'start_time' => '09:00:00',
             'trip_date' => $currentDate,
-            'fare_amount' => 50.00,
+            'fare_amount' => 50,
             'status' => 'pending',
         ]);
 
         Trip::create([
-            'driver_id' => 5,
-            'vehicle_id' => 2,
+            'driver_id' => 7,
             'from_terminal_id' => 2,
             'to_terminal_id' => 1,
             'passenger_capacity' => 20,
             'start_time' => '11:00:00',
             'trip_date' => $currentDate,
-            'fare_amount' => 50.00,
+            'fare_amount' => 50,
             'status' => 'pending',
         ]);
 
         Trip::create([
-            'driver_id' => 4,
-            'vehicle_id' => 1,
+            'driver_id' => 6,
             'from_terminal_id' => 1,
             'to_terminal_id' => 2,
             'passenger_capacity' => 20,
             'start_time' => '13:00:00',
             'trip_date' => $currentDate,
-            'fare_amount' => 50.00,
+            'fare_amount' => 50,
             'status' => 'pending',
         ]);
 
         Trip::create([
-            'driver_id' => 5,
-            'vehicle_id' => 2,
+            'driver_id' => 7,
             'from_terminal_id' => 2,
             'to_terminal_id' => 1,
             'passenger_capacity' => 20,
             'start_time' => '15:00:00',
             'trip_date' => $currentDate,
-            'fare_amount' => 50.00,
+            'fare_amount' => 50,
             'status' => 'pending',
         ]);
 
         Trip::create([
-            'driver_id' => 4,
-            'vehicle_id' => 1,
+            'driver_id' => 6,
             'from_terminal_id' => 1,
             'to_terminal_id' => 2,
             'passenger_capacity' => 20,
             'start_time' => '17:00:00',
             'trip_date' => $currentDate,
-            'fare_amount' => 50.00,
+            'fare_amount' => 50,
             'status' => 'pending',
         ]);
 
         Trip::create([
-            'driver_id' => 5,
-            'vehicle_id' => 2,
+            'driver_id' => 7,
             'from_terminal_id' => 2,
             'to_terminal_id' => 1,
             'passenger_capacity' => 20,
             'start_time' => '19:00:00',
             'trip_date' => $currentDate,
-            'fare_amount' => 50.00,
+            'fare_amount' => 50,
             'status' => 'pending',
         ]);
     }

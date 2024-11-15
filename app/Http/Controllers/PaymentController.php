@@ -19,6 +19,42 @@ class PaymentController extends Controller
         $this->payMayaService = $payMayaService;
     }
 
+    public function index(Request $request)
+    {
+        $pageSize = $request->input('page_size');
+        $filter = $request->input('filter');
+        $sortColumn = $request->input('sort_column', 'payment_method');
+        $sortDesc = $request->input('sort_desc', false) ? 'desc' : 'asc';
+
+        $query = Payment::with(['user', 'booking']);
+
+        if ($filter) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('payment_method', 'like', "%{$filter}%")
+                    ->orWhere('amount', 'like', "%{$filter}%")
+                    ->orWhere('reference_no', 'like', "%{$filter}%");
+            });
+        }
+
+        $query->orderBy('id', 'desc');
+
+        if (in_array($sortColumn, ['name', 'payment_method', 'amount', 'reference_no'])) {
+            $query->orderBy($sortColumn, $sortDesc);
+        }
+
+        if ($pageSize) {
+            $payments = $query->paginate($pageSize);
+        } else {
+            $payments = $query->get();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('messages.success.fetched'),
+            'data' => $payments,
+        ]);
+    }
+
     public function store(PaymentRequest $request)
     {
         $amount = $request->input('amount');

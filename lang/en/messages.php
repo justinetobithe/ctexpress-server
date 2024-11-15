@@ -9,6 +9,8 @@ return [
         'submitted' => 'Successfully Submitted!',
         'sent' => 'Successfully Sent!',
         'uploaded' => 'Successfully Uploaded!',
+        'fetched' => 'Data fetched successfully!',
+        'login' => 'Login successful!',
     ],
     'invalid' => [
         'credentials' => 'Invalid Credentials!',

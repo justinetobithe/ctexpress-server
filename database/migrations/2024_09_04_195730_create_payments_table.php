@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('booking_id')->constrained('bookings')->onDelete('cascade');
             $table->enum('payment_method', ['cash', 'gcash', 'paymaya']);
-            $table->decimal('amount', 8, 2);
+            $table->integer('amount');
             $table->string('reference_no')->nullable();
             $table->timestamps();
         });

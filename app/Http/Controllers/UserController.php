@@ -14,7 +14,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $pageSize = $request->input('page_size', 10);
+        $pageSize = $request->input('page_size');
         $filter = $request->input('filter');
         $sortColumn = $request->input('sort_column', 'first_name');
         $sortDesc = $request->input('sort_desc', false) ? 'desc' : 'asc';
@@ -34,7 +34,11 @@ class UserController extends Controller
             $query->orderBy($sortColumn, $sortDesc);
         }
 
-        $users = $query->paginate($pageSize);
+        if ($pageSize) {
+            $users = $query->paginate($pageSize);
+        } else {
+            $users = $query->get();
+        }
 
         return $this->success($users);
     }
@@ -99,6 +103,30 @@ class UserController extends Controller
             'status' => 'success',
             'message' => __('messages.success.deleted'),
             'user' => $user,
+        ]);
+    }
+
+    public function showDrivers()
+    {
+        $drivers = User::where('role', 'driver')->get();
+
+        // return $this->success($drivers);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('messages.success.fetched'),
+            'data' => $drivers,
+        ]);
+    }
+
+    public function showPassengers()
+    {
+        $passengers = User::where('role', 'passenger')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('messages.success.fetched'),
+            'data' => $passengers,
         ]);
     }
 }

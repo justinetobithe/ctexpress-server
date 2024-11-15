@@ -11,7 +11,7 @@ class TripRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,15 +22,14 @@ class TripRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'driver_id' => 'required|exists:users,id',
             'fare_amount' => 'required|numeric',
             'from_terminal_id' => 'required|exists:terminals,id',
             'to_terminal_id' => 'required|exists:terminals,id',
             'passenger_capacity' => 'required|integer',
             'trip_date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
+            'start_time' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
             'status' => 'required|string',
-            'vehicle_id' => 'required|exists:vehicles,id',
+            'driver_id' => 'required|exists:users,id',
         ];
     }
 }

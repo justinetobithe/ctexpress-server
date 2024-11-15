@@ -20,12 +20,18 @@ class AuthController extends Controller
 
     public function register(UserRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
+        $validated = $request->validated();
+
+        if (User::where('email', $validated['email'])->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => __('messages.errors.email_exists'),
+            ]);
+        }
+
+        $validated['password'] = Hash::make($validated['password']);
+
+        $user = User::create($validated);
 
         return response()->json([
             'status' => true,
@@ -33,6 +39,8 @@ class AuthController extends Controller
             'user' => new UserResource($user),
         ], 201);
     }
+
+
     public function login(AuthLoginRequest $request)
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
@@ -44,10 +52,18 @@ class AuthController extends Controller
                 'user' => new UserResource($user),
             ];
 
-            return $this->success($data)->withCookie(cookie('auth_token', $token, 60));
+            return response()->json([
+                'status' => true,
+                'message' => __('messages.success.login'),
+                'data' => $data,
+            ])->withCookie(cookie('auth_token', $token, 60));
         }
 
-        return $this->error(__('messages.invalid.credentials'));
+        return response()->json([
+            'status' => false,
+            'message' => __('messages.invalid.credentials'),
+            'data' => null
+        ], 401);
     }
 
     public function loginWithGoogle(GoogleLoginRequest $request)

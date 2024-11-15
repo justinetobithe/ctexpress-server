@@ -4,65 +4,100 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\TripRequest;
 use App\Models\Trip;
+use App\Traits\ApiResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class TripController extends Controller
 {
+    use ApiResponse;
 
-    public function index()
+    public function index(Request $request)
     {
-        $trips = Trip::with(['terminalFrom', 'terminalTo', 'driver', 'vehicle'])->get();
+        $pageSize = $request->input('page_size');
+        $filter = $request->input('filter');
+        $sortColumn = $request->input('sort_column', 'start_time');
+        $sortDesc = $request->input('sort_desc', false) ? 'desc' : 'asc';
+
+        $query = Trip::with(['terminalFrom', 'terminalTo', 'driver.vehicle']);
+
+        if ($filter) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('passenger_capacity', 'like', "%{$filter}%")
+                    ->orWhere('start_time', 'like', "%{$filter}%")
+                    ->orWhere('trip_date', 'like', "%{$filter}%")
+                    ->orWhere('fare_amount', 'like', "%{$filter}%")
+                    ->orWhere('status', 'like', "%{$filter}%");
+            });
+        }
+
+        $query->orderBy('id', 'desc');
+
+        if (in_array($sortColumn, ['passenger_capacity', 'start_time', 'trip_date', 'fare_amount', 'status'])) {
+            $query->orderBy($sortColumn, $sortDesc);
+        }
+
+        if ($pageSize) {
+            $trips = $query->paginate($pageSize);
+        } else {
+            $trips = $query->get();
+        }
+
+        return $this->success($trips);
+    }
+
+    public function show(string $id)
+    {
+        $trip = Trip::with(['terminalFrom', 'terminalTo', 'driver.vehicle', 'passengers.booking.user'])->findOrFail($id);
+
         return response()->json([
-            'status' => true,
-            'message' => 'Trips retrieved successfully',
-            'data' => $trips,
-        ], 200);
+            'status' => 'success',
+            'message' => __('messages.success.fetched'),
+            'data' => $trip,
+        ]);
     }
 
     public function store(TripRequest $request)
     {
-        $trip = Trip::create($request->validated());
+        $validated = $request->validated();
+
+        $trip = Trip::create($validated);
+
         return response()->json([
-            'status' => true,
-            'message' => 'Trip created successfully',
+            'status' => 'success',
+            'message' => __('messages.success.created'),
             'data' => $trip,
-        ], 201);
+        ]);
     }
 
-    public function show($id)
+    public function update(TripRequest $request, string $id)
     {
-        $trip = Trip::with(['terminalFrom', 'terminalTo', 'driver', 'vehicle', 'passengers.booking.user'])->where('id', $id)->first();
+        $trip = Trip::findOrFail($id);
+
+        $trip->update($request->all());
 
         return response()->json([
-            'status' => true,
-            'message' => 'Trip retrieved successfully',
-            'data' => $trip,
-        ], 200);
-    }
-
-    public function update(TripRequest $request, Trip $trip)
-    {
-        $trip->update($request->validated());
-        return response()->json([
-            'status' => true,
-            'message' => 'Trip updated successfully',
+            'status' => 'success',
+            'message' => __('messages.success.updated'),
             'data' => $trip,
         ], 200);
     }
 
-    public function destroy(Trip $trip)
+    public function destroy(string $id)
     {
+        $trip = Trip::findOrFail($id);
         $trip->delete();
+
         return response()->json([
-            'status' => true,
-            'message' => 'Trip deleted successfully',
-        ], 200);
+            'status' => 'success',
+            'message' => __('messages.success.deleted'),
+            'data' => $trip,
+        ]);
     }
 
     public function getTripsByDriver($driverId, Request $request)
     {
-        $query = Trip::with(['terminalFrom', 'terminalTo', 'driver', 'vehicle'])
+        $query = Trip::with(['terminalFrom', 'terminalTo', 'driver.vehicle'])
             ->where('driver_id', $driverId)
             ->orderBy('start_time', 'asc');
 
@@ -86,7 +121,7 @@ class TripController extends Controller
         $currentTime = Carbon::now()->format('H:i:s');
 
 
-        $query = Trip::with(['terminalFrom', 'terminalTo', 'driver', 'vehicle'])
+        $query = Trip::with(['terminalFrom', 'terminalTo', 'driver.vehicle'])
             ->where('trip_date', $currentDate)
             ->where('status', 'pending')
             ->where('start_time', '>', $currentTime);
@@ -120,5 +155,42 @@ class TripController extends Controller
             'message' => 'Trip status updated to in_progress successfully.',
             'data' => $trip,
         ], 200);
+    }
+
+    public function updateDriverDecision(Request $request, $id, $driverId)
+    {
+        $request->validate([
+            'decision' => 'required|in:approved,rejected',
+        ]);
+
+        $trip = Trip::where('id', $id)->where('driver_id', $driverId)->first();
+
+        if (!$trip) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Trip not found.',
+            ]);
+        }
+
+        if ($request->decision === 'approved') {
+            $trip->is_driver_accepted = 1;
+            $trip->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Trip has been successfully approved.',
+                'data' => $trip,
+            ], 200);
+        } elseif ($request->decision === 'rejected') {
+            $trip->driver_id = null;
+            $trip->is_driver_accepted = 0;
+            $trip->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Trip has been successfully rejected.',
+                'data' => $trip,
+            ], 200);
+        }
     }
 }

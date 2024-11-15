@@ -21,18 +21,13 @@ class Trip extends Model
         return $this->belongsTo(Terminal::class, 'to_terminal_id', 'id');
     }
 
-    public function driver()
-    {
-        return $this->belongsTo(User::class, 'driver_id', 'id');
-    }
-
-    public function vehicle()
-    {
-        return $this->belongsTo(Vehicle::class);
-    }
-
     public function passengers()
     {
         return $this->hasMany(Passenger::class);
+    }
+
+    public function driver()
+    {
+        return $this->belongsTo(User::class, 'driver_id', 'id');
     }
 }

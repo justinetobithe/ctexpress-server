@@ -22,9 +22,9 @@ class VehicleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'driver_id' => 'required|exists:users,id',
-            'license_plate' => 'required|string|unique:vehicles,license_plate',
-            'make' => 'required|string|max:255',
+            'driver_id' => 'nullable|exists:users,id',
+            'license_plate' => 'required|string|max:255',
+            'brand' => 'required|string|max:255',
             'model' => 'required|string|max:255',
             'year' => 'required|integer|between:1900,' . date('Y'),
             'capacity' => 'required|integer|min:1',

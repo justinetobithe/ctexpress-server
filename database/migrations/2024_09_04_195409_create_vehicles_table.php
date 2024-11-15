@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('driver_id')->constrained('users')->onDelete('cascade');
-            $table->string('license_plate')->unique();
-            $table->string('make');
-            $table->string('model');
-            $table->year('year');
-            $table->integer('capacity');
+            $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('cascade'); 
+            $table->string('license_plate')->unique()->nullable();
+            $table->string('brand')->nullable();
+            $table->string('model')->nullable();
+            $table->year('year')->nullable();
+            $table->integer('capacity')->nullable();
             $table->timestamps();
         });
     }

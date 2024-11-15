@@ -23,7 +23,9 @@ class UserResource extends JsonResource
             'phone' => $this->phone,
             'address' => $this->address,
             'role' => $this->role,
-            'image' => $this->image ? Storage::url($this->image) : '',
+            'dob' => $this->dob,
+            'classification' => $this->classification,
+            // 'image' => $this->image ? Storage::url($this->image) : '',
         ];
     }
 }

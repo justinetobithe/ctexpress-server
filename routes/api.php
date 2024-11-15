@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\MeController;
 use App\Http\Controllers\PassengerController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RouteController;
+use App\Http\Controllers\StatusBoardController;
 use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UserController;
@@ -23,15 +25,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['prefix' => 'auth'], function () {
-    Route::post('login', [AuthController::class, 'login']);
-    Route::post('register', [AuthController::class, 'register']);
-    // Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+// Route::group(['prefix' => 'auth'], function () {
+//     Route::post('login', [AuthController::class, 'login']);
+//     Route::post('register', [AuthController::class, 'register']);
+//     // Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+// });
+
+Route::controller(AuthController::class)->group(function () {
+    Route::post('register', 'register');
+    Route::post('login', 'login');
+    Route::post('validate/google', 'validateGoogleLogin');
+    Route::post('login/google', 'loginWithGoogle');
 });
 
 
 Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/me', MeController::class);
 
     Route::get('/auth/user', [AuthController::class, 'user']);
 
@@ -41,7 +52,12 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::post('/', [UserController::class, 'store']);
         Route::get('/{user}', [UserController::class, 'show']);
         Route::delete('/{user}', [UserController::class, 'destroy']);
+
+        Route::get('/passengers', [UserController::class, 'showPassengers']);
     });
+
+
+    Route::get('/drivers', [UserController::class, 'showDrivers']);
 
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::prefix('/booking')->group(function () {
@@ -51,11 +67,13 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::delete('/{id}', [BookingController::class, 'destroy']);
 
         Route::get('/current/{user_id}', [BookingController::class, 'currentBookingForUser']);
-        Route::put('/drop-off/{id}', [BookingController::class, 'dropOffPassenger']);
+        Route::put('/drop-off/booking/{id}', [BookingController::class, 'dropOffPassenger']);
+
+        Route::put('/status/{id}', [BookingController::class, 'updateBookingStatus']);
     });
 
     Route::get('/trips', [TripController::class, 'index']);
-    Route::prefix('/route')->group(function () {
+    Route::prefix('/trip')->group(function () {
         Route::post('/', [TripController::class, 'store']);
         Route::get('/{id}', [TripController::class, 'show']);
         Route::put('/{id}', [TripController::class, 'update']);
@@ -63,6 +81,8 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::get('/driver/{driverId}', [TripController::class, 'getTripsByDriver']);
         Route::get('/future/trips', [TripController::class, 'getFutureTrips']);
         Route::put('/status/{id}', [TripController::class, 'updateTripStatus']);
+
+        Route::put('/{id}/decision/{driverId}', [TripController::class, 'updateDriverDecision']);
     });
 
     Route::get('/terminals', [TerminalController::class, 'index']);
@@ -76,9 +96,9 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     Route::get('/vehicles', [VehicleController::class, 'index']);
     Route::prefix('/vehicle')->group(function () {
         Route::post('/', [VehicleController::class, 'store']);
-        Route::get('/{vehicle}', [VehicleController::class, 'show']);
-        Route::put('/{vehicle}', [VehicleController::class, 'update']);
-        Route::delete('/{vehicle}', [VehicleController::class, 'destroy']);
+        Route::get('/{id}', [VehicleController::class, 'show']);
+        Route::put('/{id}', [VehicleController::class, 'update']);
+        Route::delete('/{id}', [VehicleController::class, 'destroy']);
         Route::get('/driver/{driverId}', [VehicleController::class, 'getVehiclesByDriver']);
     });
 
@@ -88,7 +108,17 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::put('/{id}/cancel', [PassengerController::class, 'cancel']);
     });
 
+    Route::get('/payments', [PaymentController::class, 'index']);
     Route::prefix('/payment')->group(function () {
         Route::post('/', [PaymentController::class, 'store']);
     });
+});
+
+
+Route::prefix('/status-board')->group(function () {
+    Route::get('/vehicles-available', [StatusBoardController::class, 'vehiclesAvailable']);
+    Route::get('/ongoing-vehicles', [StatusBoardController::class, 'ongoingVehicles']);
+    Route::get('/next-trip', [StatusBoardController::class, 'nextTrip']);
+    Route::get('/awaiting-vehicles', [StatusBoardController::class, 'awaitingVehicles']);
+    Route::get('/bookings-with-passengers', [StatusBoardController::class, 'bookingsWithPassengers']);
 });

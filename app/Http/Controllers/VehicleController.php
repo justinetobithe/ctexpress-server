@@ -4,67 +4,92 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VehicleRequest;
 use App\Models\Vehicle;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
 class VehicleController extends Controller
 {
-    public function index()
+    use ApiResponse;
+
+    public function index(Request $request)
     {
-        $vehicles = Vehicle::all();
+        $pageSize = $request->input('page_size');
+        $filter = $request->input('filter');
+        $sortColumn = $request->input('sort_column', 'brand');
+        $sortDesc = $request->input('sort_desc', false) ? 'desc' : 'asc';
+
+        $query = Vehicle::with('driver');
+
+        if ($filter) {
+            $query->where(function ($q) use ($filter) {
+                $q->where('license_plate', 'like', "%{$filter}%")
+                    ->orWhere('brand', 'like', "%{$filter}%")
+                    ->orWhere('model', 'like', "%{$filter}%")
+                    ->orWhere('year', 'like', "%{$filter}%")
+                    ->orWhere('capacity', 'like', "%{$filter}%");
+            });
+        }
+
+        if (in_array($sortColumn, ['license_plate', 'brand', 'model', 'year', 'capacity'])) {
+            $query->orderBy($sortColumn, $sortDesc);
+        }
+
+        if ($pageSize) {
+            $vehicles = $query->paginate($pageSize);
+        } else {
+            $vehicles = $query->get();
+        }
+
+        return $this->success($vehicles);
+    }
+
+    public function show(string $id)
+    {
+        $vehicle = Vehicle::with('driver')->findOrFail($id);
+
         return response()->json([
             'status' => 'success',
-            'data' => $vehicles,
-        ], 200);
+            'message' => __('messages.success.success'),
+            'terminal' => $vehicle,
+        ]);
     }
 
     public function store(VehicleRequest $request)
     {
         $validated = $request->validated();
 
-        $vehicle = Vehicle::create([
-            'driver_id' => $validated['driver_id'],
-            'license_plate' => $validated['license_plate'],
-            'make' => $validated['make'],
-            'model' => $validated['model'],
-            'year' => $validated['year'],
-            'capacity' => $validated['capacity'],
-        ]);
+        $vehicle = Vehicle::create($validated);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Vehicle created successfully',
+            'message' => __('messages.success.created'),
             'data' => $vehicle,
-        ], 201);
+        ]);
     }
 
-    public function update(VehicleRequest $request, Vehicle $vehicle)
+    public function update(VehicleRequest $request, string $id)
     {
-        $validated = $request->validated();
-
-        $vehicle->driver_id = $validated['driver_id'];
-        $vehicle->license_plate = $validated['license_plate'];
-        $vehicle->make = $validated['make'];
-        $vehicle->model = $validated['model'];
-        $vehicle->year = $validated['year'];
-        $vehicle->capacity = $validated['capacity'];
-
-        $vehicle->save();
+        $vehicle = Vehicle::findOrFail($id);
+ 
+        $vehicle->update($request->all());
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Vehicle updated successfully',
+            'message' => __('messages.success.updated'),
             'data' => $vehicle,
         ], 200);
     }
 
-    public function destroy(Vehicle $vehicle)
+    public function destroy(string $id)
     {
+        $vehicle = Vehicle::findOrFail($id);
         $vehicle->delete();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Vehicle deleted successfully',
-        ], 200);
+            'message' => __('messages.success.deleted'),
+            'terminal' => $vehicle,
+        ]);
     }
 
     public function getVehiclesByDriver($driver_id)
@@ -73,6 +98,7 @@ class VehicleController extends Controller
 
         return response()->json([
             'status' => 'success',
+            'message' => __('messages.success.deleted'),
             'data' => $vehicles,
         ], 200);
     }

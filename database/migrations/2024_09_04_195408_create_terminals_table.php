@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('terminals', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('longitude', 10, 7);  
-            $table->decimal('latitude', 10, 7);
+            $table->text('longitude');
+            $table->text('latitude');
             $table->timestamps();
         });
     }
