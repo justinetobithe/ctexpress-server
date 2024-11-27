@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+
+Route::group([
+    'prefix' => 'webhook'
+], function () {
+    Route::post('/paymongo', function (Request $request) {
+        return $request->all();
+    });
 });

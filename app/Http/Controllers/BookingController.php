@@ -56,7 +56,7 @@ class BookingController extends Controller
 
         $booking = Booking::create($validated);
 
-        if ($request->input('payment_method') === 'cash') {
+        // if ($request->input('payment_method') === 'cash') {
             $booking->update([
                 'paid' => true,
                 'status' => 'approved'
@@ -73,7 +73,7 @@ class BookingController extends Controller
                 'payment_method' => $request->input('payment_method'),
                 'amount' => $request->input('total_amount'),
             ]);
-        }
+        // }
 
         return response()->json([
             'status' => 'success',

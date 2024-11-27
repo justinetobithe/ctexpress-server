@@ -11,6 +11,7 @@ use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
+use App\Services\PaymongoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -111,6 +112,7 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     Route::get('/payments', [PaymentController::class, 'index']);
     Route::prefix('/payment')->group(function () {
         Route::post('/', [PaymentController::class, 'store']);
+        Route::post('/checkout', [PaymentController::class, 'checkout']);
     });
 });
 
@@ -121,4 +123,8 @@ Route::prefix('/status-board')->group(function () {
     Route::get('/next-trip', [StatusBoardController::class, 'nextTrip']);
     Route::get('/awaiting-vehicles', [StatusBoardController::class, 'awaitingVehicles']);
     Route::get('/bookings-with-passengers', [StatusBoardController::class, 'bookingsWithPassengers']);
+});
+
+Route::get('/test', function(PaymongoService $paymongoService) {
+    return $paymongoService->createCheckoutSession(request()->query('payment_method', 'gcash'), request()->query('description', 'Calinan - Terminal 1A'), request()->query('amount', 20.50));
 });

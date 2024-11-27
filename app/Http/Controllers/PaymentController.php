@@ -6,6 +6,7 @@ use App\Http\Requests\PaymentRequest;
 use App\Models\Payment;
 use App\Services\GCashService;
 use App\Services\PayMayaService;
+use App\Services\PaymongoService;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -13,7 +14,7 @@ class PaymentController extends Controller
     protected $gcashService;
     protected $payMayaService;
 
-    public function __construct(GCashService $gcashService, PayMayaService $payMayaService)
+    public function __construct(GCashService $gcashService, PayMayaService $payMayaService, private PaymongoService $paymongoService)
     {
         $this->gcashService = $gcashService;
         $this->payMayaService = $payMayaService;
@@ -97,5 +98,32 @@ class PaymentController extends Controller
         ]);
 
         return response()->json($response);
+    }
+
+    /**
+     * CHECKOUT
+     * 
+     * @return \Symfony\Component\HttpFoundation\JsonResponse|array
+     *  */
+    public function checkout(Request $request)
+    {
+        try {
+            $request->validate([
+                'payment_method' => ['required'],
+                'description' => ['required'],
+                'amount' => ['required'],
+            ]);
+
+            return $this->paymongoService->createCheckoutSession(
+                $request->input('payment_method'),
+                $request->input('description'),
+                $request->input('amount')
+            );
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 }
