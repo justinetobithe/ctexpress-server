@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\PaymongoPaidEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,12 @@ Route::group([
     'prefix' => 'webhook'
 ], function () {
     Route::post('/paymongo', function (Request $request) {
-        return $request->all();
+        if($request->input('data.attributes.type') == 'payment.paid') {
+            // BROADCAST
+            broadcast(new PaymongoPaidEvent([
+                'payment_intent_id' => $request->input('data.attributes.data.attributes.payment_intent_id', null)
+            ]));
+            return $request->all();
+        }
     });
 });

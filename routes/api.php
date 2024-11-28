@@ -41,6 +41,10 @@ Route::controller(AuthController::class)->group(function () {
 
 
 Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
+    /* BROADCAST */
+    Broadcast::routes(['middleware' => 'auth:sanctum']);
+    /* END BROADCAST */
+
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/me', MeController::class);
