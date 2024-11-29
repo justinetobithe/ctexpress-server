@@ -21,6 +21,10 @@ Broadcast::channel('paymongo.paid', function () {
     return auth()->check();
 });
 
+Broadcast::channel('trip.assigned', function () {
+    return auth()->check();
+});
+
 Broadcast::channel('trip.status.updated', function () {
     return auth()->check();
 });

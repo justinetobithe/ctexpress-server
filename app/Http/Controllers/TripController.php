@@ -67,9 +67,11 @@ class TripController extends Controller
 
         $trip = Trip::create($validated);
 
-        broadcast(new TripAssignEvent([
-            'user_id' => 1
-        ]));
+        if ($trip->driver_id) {
+            broadcast(new TripAssignEvent([
+                'user_id' => $trip->driver_id
+            ]));
+        }
 
         return response()->json([
             'status' => 'success',
