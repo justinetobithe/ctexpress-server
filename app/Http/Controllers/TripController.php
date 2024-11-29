@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Events\TripAssignEvent;
+use App\Events\TripStatusUpdatedEvent;
 use App\Http\Requests\TripRequest;
+use App\Models\Booking;
 use App\Models\Trip;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
@@ -68,7 +70,7 @@ class TripController extends Controller
         broadcast(new TripAssignEvent([
             'user_id' => 1
         ]));
- 
+
         return response()->json([
             'status' => 'success',
             'message' => __('messages.success.created'),
@@ -155,6 +157,14 @@ class TripController extends Controller
 
         $trip->status = $request->status;
         $trip->save();
+
+        $user_id = Booking::select(['user_id'])->where('trip_id', $trip->id)->pluck('user_id');
+
+        foreach ($user_id as $id) {
+            broadcast(new TripStatusUpdatedEvent([
+                'user_id' => $id
+            ]));
+        }
 
         return response()->json([
             'status' => true,

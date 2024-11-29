@@ -10,7 +10,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class TripAssignEvent implements ShouldBroadcast
+class TripStatusUpdatedEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -29,6 +29,6 @@ class TripAssignEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('trip.assigned');
+        return new PrivateChannel('trip.status.updated');
     }
 }
