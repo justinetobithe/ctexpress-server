@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\TripAssignEvent;
 use App\Http\Requests\TripRequest;
 use App\Models\Trip;
 use App\Traits\ApiResponse;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 
 class TripController extends Controller
 {
@@ -63,7 +65,9 @@ class TripController extends Controller
 
         $trip = Trip::create($validated);
 
-        
+        broadcast(new TripAssignEvent([
+            'user_id' => 1
+        ]));
  
         return response()->json([
             'status' => 'success',
