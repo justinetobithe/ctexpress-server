@@ -66,6 +66,39 @@ class AuthController extends Controller
         ], 401);
     }
 
+    public function mobileLogin(AuthLoginRequest $request)
+    {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = auth()->user();
+
+            if ($user->role !== 'passenger' && $user->role !== 'driver') {
+                return response()->json([
+                    'status' => false,
+                    'message' => __('messages.errors.role_access_denied'),
+                ], 403);
+            }
+
+            $token = $user->generateToken();
+
+            $data = [
+                'token' => $token,
+                'user' => new UserResource($user),
+            ];
+
+            return response()->json([
+                'status' => true,
+                'message' => __('messages.success.login'),
+                'data' => $data,
+            ])->withCookie(cookie('auth_token', $token, 60));
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => __('messages.invalid.credentials'),
+            'data' => null
+        ], 401);
+    }
+
     public function loginWithGoogle(GoogleLoginRequest $request)
     {
         $params = $request->validated();

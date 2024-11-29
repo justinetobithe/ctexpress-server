@@ -21,5 +21,6 @@ return [
     'errors' => [
         'server_error' => 'Internal Server Error',
         'email_exists' => 'A user with this email already exists.',
+        'role_access_denied' => 'Only passengers and drivers can access this mobile app!',
     ]
 ];

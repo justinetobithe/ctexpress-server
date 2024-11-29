@@ -57,22 +57,22 @@ class BookingController extends Controller
         $booking = Booking::create($validated);
 
         // if ($request->input('payment_method') === 'cash') {
-            $booking->update([
-                'paid' => true,
-                'status' => 'approved'
-            ]);
+        $booking->update([
+            'paid' => true,
+            'status' => 'approved'
+        ]);
 
-            Passenger::create([
-                'booking_id' => $booking->id,
-                'trip_id' => $booking->trip_id,
-            ]);
+        Passenger::create([
+            'booking_id' => $booking->id,
+            'trip_id' => $booking->trip_id,
+        ]);
 
-            Payment::create([
-                'user_id' => $request->input('user_id'),
-                'booking_id' => $booking->id,
-                'payment_method' => $request->input('payment_method'),
-                'amount' => $request->input('total_amount'),
-            ]);
+        Payment::create([
+            'user_id' => $request->input('user_id'),
+            'booking_id' => $booking->id,
+            'payment_method' => $request->input('payment_method'),
+            'amount' => $request->input('total_amount'),
+        ]);
         // }
 
         return response()->json([
@@ -126,7 +126,7 @@ class BookingController extends Controller
             ->where('paid', true)
             ->whereNull('drop_at')
             ->whereHas('trip', function ($query) {
-                $query->where('status', '!=', 'completed');  
+                $query->where('status', '!=', 'completed');
             })
             ->first();
 
@@ -144,19 +144,19 @@ class BookingController extends Controller
         ], 200);
     }
 
-
     public function dropOffPassenger(Request $request, $id)
     {
+        $requestData = $request->all();
+
         $request->validate([
-            'formData.drop_at' => 'required|array|min:2|max:2',
-            'formData.drop_at.0' => 'required|numeric',
-            'formData.drop_at.1' => 'required|numeric',
+            'drop_at' => ['required', 'array', 'size:2'],
+            'drop_at.*' => ['numeric'],
         ]);
 
-        $booking = Booking::findOrFail($id);
+        $longitude = $request->input('drop_at.0');
+        $latitude = $request->input('drop_at.1');
 
-        $longitude = $request->input('formData.drop_at.0');
-        $latitude = $request->input('formData.drop_at.1');
+        $booking = Booking::findOrFail($id);
 
         $booking->drop_at = "{$longitude},{$latitude}";
         $booking->dropped_at = now();

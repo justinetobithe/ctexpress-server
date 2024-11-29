@@ -13,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Services\PaymongoService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,6 +36,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(AuthController::class)->group(function () {
     Route::post('register', 'register');
     Route::post('login', 'login');
+    Route::post('mobile-login', 'mobileLogin');
     Route::post('validate/google', 'validateGoogleLogin');
     Route::post('login/google', 'loginWithGoogle');
 });
@@ -72,7 +74,7 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::delete('/{id}', [BookingController::class, 'destroy']);
 
         Route::get('/current/{user_id}', [BookingController::class, 'currentBookingForUser']);
-        Route::put('/drop-off/booking/{id}', [BookingController::class, 'dropOffPassenger']);
+        Route::put('/drop-off/{id}', [BookingController::class, 'dropOffPassenger']);
 
         Route::put('/status/{id}', [BookingController::class, 'updateBookingStatus']);
     });
@@ -129,6 +131,6 @@ Route::prefix('/status-board')->group(function () {
     Route::get('/bookings-with-passengers', [StatusBoardController::class, 'bookingsWithPassengers']);
 });
 
-Route::get('/test', function(PaymongoService $paymongoService) {
+Route::get('/test', function (PaymongoService $paymongoService) {
     return $paymongoService->createCheckoutSession(request()->query('payment_method', 'gcash'), request()->query('description', 'Calinan - Terminal 1A'), request()->query('amount', 20.50));
 });

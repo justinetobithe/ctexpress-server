@@ -63,6 +63,8 @@ class TripController extends Controller
 
         $trip = Trip::create($validated);
 
+        
+ 
         return response()->json([
             'status' => 'success',
             'message' => __('messages.success.created'),
