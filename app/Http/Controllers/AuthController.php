@@ -81,7 +81,7 @@ class AuthController extends Controller
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = auth()->user();
-            if ($user->status === 0) {
+            if ($user->status == 0) {
                 return response()->json([
                     'status' => false,
                     'message' => __('messages.errors.needs_approval'),
