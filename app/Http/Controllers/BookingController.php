@@ -56,6 +56,7 @@ class BookingController extends Controller
         $validated = $request->validated();
 
         $existingBooking = Booking::where('trip_id', $validated['trip_id'])
+            ->where('user_id', $validated['user_id'])
             ->first();
 
         if ($existingBooking) {
