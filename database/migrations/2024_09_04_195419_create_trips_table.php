@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('driver_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('from_terminal_id')->constrained('terminals')->onDelete('cascade');
             $table->foreignId('to_terminal_id')->constrained('terminals')->onDelete('cascade');
-            $table->integer('passenger_capacity');
             $table->time('start_time');
             $table->date('trip_date');
             $table->integer('fare_amount');

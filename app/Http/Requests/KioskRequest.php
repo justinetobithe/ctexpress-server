@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class TripRequest extends FormRequest
+class KioskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,13 +22,12 @@ class TripRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fare_amount' => 'required|numeric',
-            'from_terminal_id' => 'required|exists:terminals,id',
-            'to_terminal_id' => 'required|exists:terminals,id',
-            'trip_date' => 'required|date',
-            'start_time' => 'required|regex:/^\d{2}:\d{2}(:\d{2})?$/',
-            'status' => 'required|string',
-            'driver_id' => 'required|exists:users,id',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'phone' => ['required', 'string', 'regex:/^(\+?\d{1,4}[\s-]?)?\d{10,15}$/'],
+            'trip_id' => ['required', 'integer', 'exists:trips,id'],
+            'payment_method' => ['required', 'string', 'in:Cash,Card,Online'],
+            'amount_to_pay' => ['required', 'numeric', 'min:0.01'],
         ];
     }
 }

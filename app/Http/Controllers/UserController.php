@@ -129,4 +129,22 @@ class UserController extends Controller
             'data' => $passengers,
         ]);
     }
+
+    public function updateStatus(Request $request, string $id)
+    {
+        $request->validate([
+            'status' => 'required|integer|in:0,1',
+        ]);
+
+        $user = User::findOrFail($id);
+
+        $user->status = $request->input('status');
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('messages.success.status_updated'),
+            'user' => $user,
+        ]);
+    }
 }

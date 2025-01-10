@@ -11,16 +11,17 @@ return [
         'uploaded' => 'Successfully Uploaded!',
         'fetched' => 'Data fetched successfully!',
         'login' => 'Login successful!',
+        'status_updated' => 'Status updated successfully!',
     ],
     'invalid' => [
         'credentials' => 'Invalid Credentials!',
         'provider' => 'Invalid Provider',
         'user' => 'Invalid User!',
-        'unverified_doctor' => 'Sorry, access is currently restricted as verification is pending. Please complete the verification process to enable this feature. Thank you!'
     ],
     'errors' => [
         'server_error' => 'Internal Server Error',
         'email_exists' => 'A user with this email already exists.',
         'role_access_denied' => 'Only passengers and drivers can access this mobile app!',
+        'needs_approval' => 'Your account is pending approval.',
     ]
 ];

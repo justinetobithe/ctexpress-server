@@ -9,6 +9,7 @@ use App\Models\Payment;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
@@ -54,26 +55,35 @@ class BookingController extends Controller
     {
         $validated = $request->validated();
 
+        $existingBooking = Booking::where('trip_id', $validated['trip_id'])
+            ->first();
+
+        if ($existingBooking) {
+            return response()->json([
+                'status' => false,
+                'message' => 'There is already an approved and paid booking for this trip.',
+            ]);
+        }
+
         $booking = Booking::create($validated);
 
-        // if ($request->input('payment_method') === 'cash') {
-        $booking->update([
-            'paid' => true,
-            'status' => 'approved'
-        ]);
+        $paymentMethod = $request->input('payment_method');
+        if (in_array($paymentMethod, ['gcash', 'paymaya'])) {
+            $booking->update([
+                'paid' => true,
+                'status' => 'approved',
+            ]);
+        }
 
-        Passenger::create([
-            'booking_id' => $booking->id,
-            'trip_id' => $booking->trip_id,
-        ]);
+        $referenceNo = 'REF' . strtoupper(Str::random(5)) . $booking->id;
 
         Payment::create([
             'user_id' => $request->input('user_id'),
             'booking_id' => $booking->id,
-            'payment_method' => $request->input('payment_method'),
+            'payment_method' => $paymentMethod,
             'amount' => $request->input('total_amount'),
+            'reference_no' => $referenceNo,
         ]);
-        // }
 
         return response()->json([
             'status' => 'success',
@@ -81,6 +91,7 @@ class BookingController extends Controller
             'booking' => $booking,
         ]);
     }
+
 
     public function show($id)
     {
@@ -126,7 +137,7 @@ class BookingController extends Controller
             ->where('paid', true)
             ->whereNull('drop_at')
             ->whereHas('trip', function ($query) {
-                $query->where('status', '!=', 'completed');
+                $query->where('status', 'in_progress');
             })
             ->first();
 
@@ -170,6 +181,47 @@ class BookingController extends Controller
         ]);
     }
 
+    public function markAsPaid(Request $request, string $id)
+    {
+        $validated = $request->validate([
+            'paid' => 'required|boolean',
+        ]);
+
+        $booking = Booking::with(['user', 'trip'])->findOrFail($id);
+
+        $referenceNo = 'REF' . strtoupper(Str::random(5)) . $booking->id;
+
+        $fareAmount = $booking->trip->fare_amount;
+        $userClassification = $booking->user->classification;
+
+        $discount = 0;
+
+        if (in_array($userClassification, ['student', 'pwd', 'senior_citizen'])) {
+            $discount = $fareAmount * 0.20;
+        }
+
+        $amountAfterDiscount = $fareAmount - $discount;
+
+        Payment::create([
+            'user_id' => $booking->user->id,
+            'booking_id' => $booking->id,
+            'payment_method' => 'cash',
+            'amount' => $amountAfterDiscount,
+            'reference_no' => $referenceNo,
+        ]);
+
+        $booking->update([
+            'paid' => $validated['paid'],
+            'status' => 'approved',
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => __('Payment successfully recorded and booking updated to paid'),
+            'data' => $booking,
+        ]);
+    }
+
 
     public function updateBookingStatus(Request $request, string $id)
     {
@@ -209,5 +261,18 @@ class BookingController extends Controller
                 ]);
             });
         }
+    }
+
+    public function listBookingsByUser($userId)
+    {
+        $bookings = Booking::with(['trip.driver.vehicle', 'user'])
+            ->where('user_id', $userId)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Bookings retrieved successfully.',
+            'data' => $bookings,
+        ]);
     }
 }

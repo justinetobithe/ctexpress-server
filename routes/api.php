@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\KioskController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PassengerController;
 use App\Http\Controllers\PaymentController;
@@ -41,6 +42,7 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('login/google', 'loginWithGoogle');
 });
 
+Route::get('/terminals', [TerminalController::class, 'index']);
 
 Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     /* BROADCAST */
@@ -61,6 +63,8 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::delete('/{user}', [UserController::class, 'destroy']);
 
         Route::get('/passengers', [UserController::class, 'showPassengers']);
+
+        Route::put('/{id}/status', [UserController::class, 'updateStatus']);
     });
 
 
@@ -77,6 +81,9 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::put('/drop-off/{id}', [BookingController::class, 'dropOffPassenger']);
 
         Route::put('/status/{id}', [BookingController::class, 'updateBookingStatus']);
+
+        Route::put('{id}/paid', [BookingController::class, 'markAsPaid']);
+        Route::get('/user_id/{user_id}', [BookingController::class, 'listBookingsByUser']);
     });
 
     Route::get('/trips', [TripController::class, 'index']);
@@ -90,9 +97,12 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::put('/status/{id}', [TripController::class, 'updateTripStatus']);
 
         Route::put('/{id}/decision/{driverId}', [TripController::class, 'updateDriverDecision']);
+
+        Route::get('/today/trips', [TripController::class, 'getTripsToday']);
+        Route::get('/today/terminal/trips', [TripController::class, 'getTripsTodayWithTerminals']);
     });
 
-    Route::get('/terminals', [TerminalController::class, 'index']);
+    // Route::get('/terminals', [TerminalController::class, 'index']);
     Route::prefix('/terminal')->group(function () {
         Route::post('/', [TerminalController::class, 'store']);
         Route::get('/{terminal}', [TerminalController::class, 'show']);
@@ -116,12 +126,12 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     });
 
     Route::get('/payments', [PaymentController::class, 'index']);
-    Route::prefix('/payment')->group(function () {
-        Route::post('/', [PaymentController::class, 'store']);
-        Route::post('/checkout', [PaymentController::class, 'checkout']);
+
+    Route::get('/kiosks', [KioskController::class, 'index']);
+    Route::prefix('/kiosk')->group(function () {
+        Route::put('{id}/paid', [KioskController::class, 'markAsPaid']);
     });
 });
-
 
 Route::prefix('/status-board')->group(function () {
     Route::get('/vehicles-available', [StatusBoardController::class, 'vehiclesAvailable']);
@@ -134,3 +144,19 @@ Route::prefix('/status-board')->group(function () {
 Route::get('/test', function (PaymongoService $paymongoService) {
     return $paymongoService->createCheckoutSession(request()->query('payment_method', 'gcash'), request()->query('description', 'Calinan - Terminal 1A'), request()->query('amount', 20.50));
 });
+
+Route::prefix('/payment')->group(function () {
+    Route::post('/', [PaymentController::class, 'store']);
+    Route::post('/checkout', [PaymentController::class, 'checkout']);
+});
+
+Route::prefix('/kiosk')->group(function () {
+    Route::post('/', [KioskController::class, 'store']);
+});
+
+Route::prefix('/payment')->group(function () {
+    Route::post('/', [PaymentController::class, 'store']);
+    Route::post('/checkout', [PaymentController::class, 'checkout']);
+});
+
+Route::get('/trips/by-terminals', [TripController::class, 'getTripsByTerminals']);

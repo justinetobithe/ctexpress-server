@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('booking_id')->constrained('bookings')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('kiosk_id')->nullable()->constrained('kiosks')->onDelete('cascade');
+            $table->foreignId('booking_id')->nullable()->constrained('bookings')->onDelete('cascade');
             $table->enum('payment_method', ['cash', 'gcash', 'paymaya']);
             $table->integer('amount');
             $table->string('reference_no')->nullable();

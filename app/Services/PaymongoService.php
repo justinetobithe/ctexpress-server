@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 class PaymongoService
@@ -23,11 +24,26 @@ class PaymongoService
      * @param float $amount
      * @return array
      *  */
-    public function createCheckoutSession($payment_method = '', $description = '', $amount = 0.00)
+    public function createCheckoutSession($payment_method = '', $description = '', $amount = 0.00, $email = '', $name = '', $phone = ''): array
     {
         try {
-            if (!$payment_method)
+            if (empty($payment_method)) {
                 throw new \Exception('INVALID PAYMENT METHOD');
+            }
+
+            $billing = [
+                "address" => [
+                    "city" => null,
+                    "country" => null,
+                    "line1" => null,
+                    "line2" => null,
+                    "postal_code" => null,
+                    "state" => null
+                ],
+                "email" => $name ?? null,
+                "phone" => $phone ?? null,
+                "name" => $email ?? null,
+            ];
 
             $api_response = $this->http_client->post('/checkout_sessions', [
                 'data' => [
@@ -41,14 +57,17 @@ class PaymongoService
                             ]
                         ],
                         'payment_method_types' => [$payment_method],
-                        'description' => $description
+                        'description' => $description,
+                        'billing' => $billing,
                     ]
                 ]
             ])->object();
 
             return [
+                // 'data' => $api_response->data,
                 'payment_intent_id' => $api_response->data->attributes->payment_intent->id ?? null,
-                'url' => $api_response->data->attributes->checkout_url ?? ''
+                'url' => $api_response->data->attributes->checkout_url ?? '',
+
             ];
         } catch (\Exception $e) {
             return [

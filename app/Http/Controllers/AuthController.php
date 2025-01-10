@@ -29,7 +29,19 @@ class AuthController extends Controller
             ]);
         }
 
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = md5(uniqid() . date('u')) . '.' . pathinfo($image->getClientOriginalName(), PATHINFO_EXTENSION);
+            $upload = $image->storeAs("/public/image", $imageName);
+            if ($upload) {
+                $validated['image'] = $imageName;
+            }
+        }
+
         $validated['password'] = Hash::make($validated['password']);
+
+        $classification = $validated['classification'] ?? '';
+        $validated['status'] = ($classification === 'none' || $classification === '') ? 1 : 0;
 
         $user = User::create($validated);
 
@@ -37,9 +49,8 @@ class AuthController extends Controller
             'status' => true,
             'message' => __('messages.success.registered'),
             'user' => new UserResource($user),
-        ], 201);
+        ]);
     }
-
 
     public function login(AuthLoginRequest $request)
     {
@@ -63,19 +74,25 @@ class AuthController extends Controller
             'status' => false,
             'message' => __('messages.invalid.credentials'),
             'data' => null
-        ], 401);
+        ]);
     }
 
     public function mobileLogin(AuthLoginRequest $request)
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = auth()->user();
+            if ($user->status === 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => __('messages.errors.needs_approval'),
+                ]);
+            }
 
             if ($user->role !== 'passenger' && $user->role !== 'driver') {
                 return response()->json([
                     'status' => false,
                     'message' => __('messages.errors.role_access_denied'),
-                ], 403);
+                ]);
             }
 
             $token = $user->generateToken();
@@ -96,7 +113,7 @@ class AuthController extends Controller
             'status' => false,
             'message' => __('messages.invalid.credentials'),
             'data' => null
-        ], 401);
+        ]);
     }
 
     public function loginWithGoogle(GoogleLoginRequest $request)
@@ -134,7 +151,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => __('messages.success.deleted'),
-        ], 200);
+        ]);
     }
 
     public function user()
@@ -142,7 +159,7 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'user' => Auth::user(),
-        ], 200);
+        ]);
     }
 
     protected function validateProvider($provider)

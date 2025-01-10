@@ -27,7 +27,7 @@ class PaymentController extends Controller
         $sortColumn = $request->input('sort_column', 'payment_method');
         $sortDesc = $request->input('sort_desc', false) ? 'desc' : 'asc';
 
-        $query = Payment::with(['user', 'booking']);
+        $query = Payment::with(['user', 'booking', 'kiosk']);
 
         if ($filter) {
             $query->where(function ($q) use ($filter) {
@@ -112,12 +112,18 @@ class PaymentController extends Controller
                 'payment_method' => ['required'],
                 'description' => ['required'],
                 'amount' => ['required'],
+                'name' => ['required'],
+                'email' => ['sometimes'],
+                'phone' => ['sometimes'],
             ]);
 
             return $this->paymongoService->createCheckoutSession(
                 $request->input('payment_method'),
                 $request->input('description'),
-                $request->input('amount')
+                $request->input('amount'),
+                $request->input('name'),
+                $request->input('email'),
+                $request->input('phone'),
             );
         } catch (\Exception $e) {
             return [

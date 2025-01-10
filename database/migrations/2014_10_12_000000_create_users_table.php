@@ -19,7 +19,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
-            $table->date('dob')->nullable();
             $table->enum('classification', ['student', 'PWD', 'senior citizen'])->nullable();
             $table->string('password')->nullable();
             $table->string('google_id')->nullable();
@@ -28,6 +27,7 @@ return new class extends Migration
             $table->timestamp('two_factor_expires_at')->nullable();
             $table->enum('role', ['passenger', 'driver', 'operator', 'admin'])->default('passenger');
             $table->string('image')->nullable();
+            $table->integer('status')->default(0)->comment('0 = not approved, 1 = approved');
             $table->rememberToken();
             $table->timestamps();
         });

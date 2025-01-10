@@ -20,4 +20,9 @@ class Payment extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function kiosk()
+    {
+        return $this->belongsTo(kiosk::class);
+    }
 }

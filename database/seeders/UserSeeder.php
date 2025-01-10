@@ -24,6 +24,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'James',
@@ -34,6 +35,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Jazel',
@@ -44,6 +46,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Cherrie Anne',
@@ -54,6 +57,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Steve Julian',
@@ -64,6 +68,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Driver',
@@ -74,6 +79,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Driver',
@@ -84,6 +90,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -94,6 +101,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -104,6 +112,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -114,6 +123,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -124,6 +134,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -134,6 +145,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -144,6 +156,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -154,6 +167,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -164,6 +178,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -174,6 +189,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
             [
                 'first_name' => 'Passenger',
@@ -184,6 +200,7 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'status' => 1
             ],
         ]);
     }

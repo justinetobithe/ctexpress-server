@@ -29,9 +29,9 @@ class UserRequest extends FormRequest
             'address' => 'nullable|string|max:255',
             'password' => 'sometimes|nullable|string|min:8',
             'role' => 'required|in:operator,passenger,driver,admin',
-            'dob' => 'nullable|date',
             'classification' => 'nullable|string',
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'status' => 'nullable|integer|in:0,1',
         ];
     }
 }
