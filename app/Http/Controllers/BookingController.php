@@ -158,17 +158,22 @@ class BookingController extends Controller
 
     public function dropOffPassenger(Request $request, $id)
     {
-        $requestData = $request->all();
-
         $request->validate([
             'drop_at' => ['required', 'array', 'size:2'],
             'drop_at.*' => ['numeric'],
         ]);
 
+        $booking = Booking::with('trip')->findOrFail($id);
+
+        if ($booking->trip->status !== 'in_progress') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The trip is not in progress. Drop-off cannot be completed at this time.',
+            ]);
+        }
+
         $longitude = $request->input('drop_at.0');
         $latitude = $request->input('drop_at.1');
-
-        $booking = Booking::findOrFail($id);
 
         $booking->drop_at = "{$longitude},{$latitude}";
         $booking->dropped_at = now();
