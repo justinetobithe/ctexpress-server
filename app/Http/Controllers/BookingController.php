@@ -137,7 +137,8 @@ class BookingController extends Controller
             ->where('paid', true)
             ->whereNull('drop_at')
             ->whereHas('trip', function ($query) {
-                $query->where('status', 'in_progress');
+                $query->where('status', 'in_progress')
+                    ->orWhere('status', 'pending');
             })
             ->first();
 
