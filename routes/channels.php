@@ -20,3 +20,11 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 Broadcast::channel('paymongo.paid', function () {
     return auth()->check();
 });
+
+Broadcast::channel('trip.assigned', function () {
+    return auth()->check();
+});
+
+Broadcast::channel('trip.status.updated', function () {
+    return auth()->check();
+});
