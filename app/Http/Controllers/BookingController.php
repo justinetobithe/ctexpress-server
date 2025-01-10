@@ -265,7 +265,7 @@ class BookingController extends Controller
 
     public function listBookingsByUser($userId)
     {
-        $bookings = Booking::with(['trip.driver.vehicle', 'user'])
+        $bookings = Booking::with(['trip.terminalFrom', 'trip.terminalTo', 'trip.driver.vehicle', 'user'])
             ->where('user_id', $userId)
             ->get();
 
