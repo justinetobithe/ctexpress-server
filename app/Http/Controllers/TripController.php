@@ -86,7 +86,7 @@ class TripController extends Controller
                 $tripStartTime = Carbon::parse($trip->trip_date . ' ' . $trip->start_time);
                 $tripEndTime = $tripStartTime->copy()->addHours(3);
 
-                if ($fullStartTime->isBetween($tripStartTime->subHours(3), $tripEndTime->addHours(3))) {
+                if ($fullStartTime->isBetween($tripStartTime, $tripEndTime)) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'The new trip cannot be scheduled within 3 hours of existing trips.',
