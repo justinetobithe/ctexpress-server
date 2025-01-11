@@ -87,7 +87,6 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
         Route::get('/user_id/{user_id}', [BookingController::class, 'listBookingsByUser']);
     });
 
-    Route::get('/trips', [TripController::class, 'index']);
     Route::prefix('/trip')->group(function () {
         Route::post('/', [TripController::class, 'store']);
         Route::get('/{id}', [TripController::class, 'show']);
@@ -159,3 +158,6 @@ Route::prefix('/payment')->group(function () {
 });
 
 Route::get('/trips/by-terminals', [TripController::class, 'getTripsByTerminals']);
+
+
+Route::get('/trips', [TripController::class, 'index']);
