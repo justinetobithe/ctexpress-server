@@ -26,7 +26,7 @@ class KioskRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255'],
             'phone' => ['required', 'string', 'regex:/^(\+?\d{1,4}[\s-]?)?\d{10,15}$/'],
             'trip_id' => ['required', 'integer', 'exists:trips,id'],
-            'payment_method' => ['required', 'string', 'in:Cash,Card,Online'],
+            'payment_method' => ['required', 'string'],
             'amount_to_pay' => ['required', 'numeric', 'min:0.01'],
         ];
     }
