@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KioskController;
 use App\Http\Controllers\MeController;
 use App\Http\Controllers\PassengerController;
@@ -133,12 +134,10 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     });
 });
 
-Route::prefix('/status-board')->group(function () {
-    Route::get('/vehicles-available', [StatusBoardController::class, 'vehiclesAvailable']);
-    Route::get('/ongoing-vehicles', [StatusBoardController::class, 'ongoingVehicles']);
-    Route::get('/next-trip', [StatusBoardController::class, 'nextTrip']);
-    Route::get('/awaiting-vehicles', [StatusBoardController::class, 'awaitingVehicles']);
-    Route::get('/bookings-with-passengers', [StatusBoardController::class, 'bookingsWithPassengers']);
+Route::prefix('/dashboard')->group(function () {
+    Route::get('/passengers', [DashboardController::class, 'numberOfPassengers']);
+    Route::get('/vehicles', [DashboardController::class, 'numberOfVehicles']);
+    Route::get('/drivers', [DashboardController::class, 'numberOfDrivers']);
 });
 
 Route::get('/test', function (PaymongoService $paymongoService) {
