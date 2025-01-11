@@ -18,7 +18,7 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('paymongo.paid', function () {
-    return auth()->check();
+    return true;
 });
 
 Broadcast::channel('trip.assigned', function () {
