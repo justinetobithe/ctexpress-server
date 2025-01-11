@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    /**
+     * Get the number of passengers by counting users with the 'passenger' role.
+     */
     public function numberOfPassengers()
     {
-        $passengerCount = User::count();
+        $passengerCount = User::where('role', 'passenger')->count();
 
         return response()->json([
             'status' => true,
@@ -24,7 +27,7 @@ class DashboardController extends Controller
      */
     public function numberOfDrivers()
     {
-        $driverCount = User::count();
+        $driverCount = User::where('role', 'driver')->count();
 
         return response()->json([
             'status' => true,
