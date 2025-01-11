@@ -58,6 +58,17 @@ class KioskController extends Controller
 
         $kiosk = Kiosk::create($validated);
 
+        $referenceNo = 'REF' . strtoupper(Str::random(5)) . $kiosk->id;
+
+        if ($request->payment !== "Cash") {
+            Payment::create([
+                'kiosk_id' => $kiosk->id,
+                'payment_method' => $kiosk->payment_method,
+                'amount' => $kiosk->amount_to_pay,
+                'reference_no' => $referenceNo,
+            ]);
+        }
+
         return response()->json([
             'status' => 'success',
             'message' => __('Kiosk created successfully with ID: ') . $kiosk->uuid,
