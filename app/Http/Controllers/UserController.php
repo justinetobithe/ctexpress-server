@@ -108,8 +108,8 @@ class UserController extends Controller
 
     public function showDrivers()
     {
-        $drivers = User::whereHas('vehicle')->get();
-
+        $drivers = User::with('vehicle')->where('role', 'driver')->get();
+ 
         return response()->json([
             'status' => 'success',
             'message' => __('messages.success.fetched'),
@@ -119,7 +119,7 @@ class UserController extends Controller
 
     public function showPassengers()
     {
-        $passengers = User::where('passenger')->get();
+        $passengers = User::where('role', 'passenger')->get();
 
         return response()->json([
             'status' => 'success',
