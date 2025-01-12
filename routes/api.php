@@ -134,7 +134,7 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     });
 
     Route::prefix('/trip-rating')->group(function () {
-        Route::post('/', [TripRatingController::class, 'markAsPaid']);
+        Route::post('/', [TripRatingController::class, 'store']);
     });
 });
 
