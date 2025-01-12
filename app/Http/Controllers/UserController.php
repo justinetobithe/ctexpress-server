@@ -108,7 +108,7 @@ class UserController extends Controller
 
     public function showDrivers()
     {
-        $drivers = User::where(['driver', 'vehicle'])->get();
+        $drivers = User::where(['vehicle'])->get();
 
         return response()->json([
             'status' => 'success',
