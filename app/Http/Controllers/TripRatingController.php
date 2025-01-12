@@ -16,7 +16,7 @@ class TripRatingController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => __('messages.success.fetched'),
+            'message' => __('messages.success.rating_submitted_successfully'),
             'data' => $tripRating,
         ]);
     }

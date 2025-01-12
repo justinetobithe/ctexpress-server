@@ -12,6 +12,7 @@ return [
         'fetched' => 'Data fetched successfully!',
         'login' => 'Login successful!',
         'status_updated' => 'Status updated successfully!',
+        'rating_submitted_successfully' => 'Your rating has been submitted successfully!',
     ],
     'invalid' => [
         'credentials' => 'Invalid Credentials!',
