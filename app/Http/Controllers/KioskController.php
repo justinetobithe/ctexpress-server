@@ -69,6 +69,8 @@ class KioskController extends Controller
             ]);
         }
 
+        $kiosk->load(['trip.terminalFrom', 'trip.terminalTo']);
+
         return response()->json([
             'status' => 'success',
             'message' => __('Kiosk created successfully with ID: ') . $kiosk->uuid,
