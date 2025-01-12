@@ -11,6 +11,7 @@ use App\Http\Controllers\RouteController;
 use App\Http\Controllers\StatusBoardController;
 use App\Http\Controllers\TerminalController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\TripRatingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use App\Services\PaymongoService;
@@ -130,6 +131,10 @@ Route::middleware('auth:sanctum', 'throttle:60,1')->group(function () {
     Route::get('/kiosks', [KioskController::class, 'index']);
     Route::prefix('/kiosk')->group(function () {
         Route::put('{id}/paid', [KioskController::class, 'markAsPaid']);
+    });
+
+    Route::prefix('/trip-rating')->group(function () {
+        Route::post('/', [TripRatingController::class, 'markAsPaid']);
     });
 });
 
